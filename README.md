@@ -150,3 +150,70 @@ spring.cloud.config.label=master
 
 Now, application could run without other normal profiles, 
 configurations will be got from remote config center.
+
+### 2.3. Create bootstrap.yml (or .properties) more flexible
+
+- At first: change pom setting
+
+> Or bootstrap.yml could not analysis `@profileActive@`
+
+```
+<build>
+    ...
+    <resources>
+        <resource>
+            <directory>${basedir}/src/main/resources</directory>
+            <filtering>true</filtering>
+        </resource>
+    </resources>
+    ...
+</build>
+```
+
+> This resources config is not strict, it would be fine to config like follow ways if unused profiles are a lot.
+
+```
+<resources>
+    <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <!-- With filtering is true and include bootstrap.yml as resource file, then @profileActive@ could be set -->
+        <filtering>true</filtering>
+        <includes>
+            <!-- To claim these two files are resource files -->
+            <include>bootstrap.yml</include>
+            <include>bootstrap-${profileActive}.yml</include>
+        </includes>
+    </resource>
+    <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <excludes>
+            <!-- To claim files exclude these type are resource files -->
+            <exclude>bootstrap*.yml</exclude>
+        </excludes>
+    </resource>
+</resources>
+```
+
+> In this way, bootstrap*.yml will keep two (which is include), and other named way profiles will be also kept.
+
+- bootstrap.yml
+
+```
+spring:
+  application:
+    name: note
+  profiles:
+    active: @profileActive@
+```
+
+- bootstrap-xxx.yml
+
+```
+spring:
+  cloud:
+    config:
+      label: develop
+      # to show bootstrap-xxx has no relationship with application-xxx, totally different type
+      profile: prod
+      uri: http://localhost:20088
+```
