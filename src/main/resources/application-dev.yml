@@ -6,3 +6,9 @@ spring:
           uri: https://github.com/aiyouheiha/sinfonia-config-repo.git
 server:
   port: 20088
+eureka:
+  instance:
+    hostname: config.sinfonia.heiha.com
+  client:
+    service-url:
+      defaultZone: http://eureka.sinfonia.heiha.com:20089/eureka/
